@@ -1,6 +1,7 @@
 import pandas as pd
 from fastapi import UploadFile, HTTPException
 import io
+from app.services.analytics_service import generate_analytics
 
 async def process_csv(file: UploadFile):
     if not file.filename.endswith('.csv'):
@@ -14,21 +15,23 @@ async def process_csv(file: UploadFile):
         if df.empty:
             raise HTTPException(status_code=400, detail="The uploaded CSV file is empty.")
             
-        rows, columns = df.shape
+        # Get up to 5 rows for preview
+        # Replace NaN with None for valid JSON serialization for preview
+        df_preview = df.where(pd.notnull(df), None)
+        preview = df_preview.head(5).to_dict(orient='records')
         column_names = df.columns.tolist()
         
-        # Replace NaN with None for valid JSON serialization
-        df = df.where(pd.notnull(df), None)
-        
-        # Get up to 5 rows for preview
-        preview = df.head(5).to_dict(orient='records')
+        # Generate analytics and charts
+        summary, charts = generate_analytics(df)
         
         return {
             "filename": file.filename,
-            "rows": rows,
-            "columns": columns,
+            "summary": summary,
+            "charts": charts,
             "column_names": column_names,
-            "preview": preview
+            "preview": preview,
+            "rows": summary["rows"],
+            "columns": summary["columns"]
         }
     except pd.errors.EmptyDataError:
         raise HTTPException(status_code=400, detail="The uploaded CSV file is empty or corrupted.")
