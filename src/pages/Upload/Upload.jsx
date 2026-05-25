@@ -1,6 +1,7 @@
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2, Table2, Columns, Rows } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2, Table2, Columns, Rows, BarChart2, PieChart, Activity } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { uploadService } from '../../services/api/uploadService';
+import ChartWrapper from '../../components/charts/ChartWrapper';
 
 export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -69,16 +70,16 @@ export default function Upload() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out pb-12">
-      <div className="mb-8 flex justify-between items-end">
+    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out pb-12">
+      <div className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Dataset Upload</h1>
-          <p className="text-muted-foreground">Upload your CSV business data to generate instant AI insights.</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-1">Dataset Upload & Analytics</h1>
+          <p className="text-muted-foreground">Upload your CSV business data to generate instant AI insights and visual dashboards.</p>
         </div>
         {result && (
           <button
             onClick={resetUpload}
-            className="bg-card border border-border text-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+            className="bg-card border border-border text-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors whitespace-nowrap"
           >
             Upload New File
           </button>
@@ -110,7 +111,7 @@ export default function Upload() {
                 <div className="flex flex-col items-center">
                   <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
                   <h3 className="text-xl font-bold mb-2">Analyzing Dataset...</h3>
-                  <p className="text-muted-foreground">Please wait while we process your file.</p>
+                  <p className="text-muted-foreground">Please wait while we process your file and generate charts.</p>
                 </div>
               ) : (
                 <>
@@ -153,6 +154,10 @@ export default function Upload() {
                   <CheckCircle className="h-4 w-4 mr-2 text-emerald-500 mt-0.5 shrink-0" />
                   Dates should be consistently formatted (e.g., YYYY-MM-DD).
                 </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-4 w-4 mr-2 text-emerald-500 mt-0.5 shrink-0" />
+                  Include a mix of numeric and categorical data for best charts.
+                </li>
               </ul>
             </div>
           </div>
@@ -160,66 +165,107 @@ export default function Upload() {
       )}
 
       {/* Results Section */}
-      {result && (
+      {result && result.summary && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center space-x-3 mb-2">
             <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
               <CheckCircle className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Upload Successful</h2>
+              <h2 className="text-xl font-bold">Analysis Complete</h2>
               <p className="text-sm text-muted-foreground">File: <span className="font-medium text-foreground">{result.filename}</span></p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4">
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4 hover:border-primary/50 transition-colors">
               <div className="p-3 bg-primary/10 text-primary rounded-lg">
                 <Rows className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Rows</p>
-                <h3 className="text-2xl font-bold">{result.rows.toLocaleString()}</h3>
+                <h3 className="text-2xl font-bold">{result.summary.rows.toLocaleString()}</h3>
               </div>
             </div>
 
-            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4">
+            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4 hover:border-primary/50 transition-colors">
               <div className="p-3 bg-primary/10 text-primary rounded-lg">
                 <Columns className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Columns</p>
-                <h3 className="text-2xl font-bold">{result.columns.toLocaleString()}</h3>
+                <h3 className="text-2xl font-bold">{result.summary.columns.toLocaleString()}</h3>
               </div>
             </div>
 
-            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4">
+            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4 hover:border-primary/50 transition-colors">
               <div className="p-3 bg-primary/10 text-primary rounded-lg">
-                <Table2 className="h-6 w-6" />
+                <BarChart2 className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Data Type</p>
-                <h3 className="text-2xl font-bold">Tabular Data</h3>
+                <p className="text-sm font-medium text-muted-foreground">Numeric Cols</p>
+                <h3 className="text-2xl font-bold">{result.summary.numeric_columns.length}</h3>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4 hover:border-primary/50 transition-colors">
+              <div className="p-3 bg-primary/10 text-primary rounded-lg">
+                <PieChart className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Categorical Cols</p>
+                <h3 className="text-2xl font-bold">{result.summary.categorical_columns.length}</h3>
               </div>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+          {/* Auto-generated Charts Section */}
+          {result.charts && result.charts.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Activity className="h-6 w-6 mr-3 text-primary" />
+                Automatic Dashboard
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {result.charts.map((chartConfig, idx) => (
+                  <div key={idx} className={chartConfig.type === 'line' ? "lg:col-span-2" : ""}>
+                    <ChartWrapper config={chartConfig} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dataset Preview */}
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden mt-12">
             <div className="p-6 border-b border-border bg-muted/30">
               <h3 className="font-semibold text-lg flex items-center">
                 <FileText className="h-5 w-5 mr-2 text-primary" />
-                Data Preview (First {result.preview.length} rows)
+                Dataset Overview (First {result.preview.length} rows)
               </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
                   <tr>
-                    {result.column_names.map((col, idx) => (
-                      <th key={idx} className="px-6 py-3 font-medium tracking-wider whitespace-nowrap">
-                        {col}
-                      </th>
-                    ))}
+                    {result.column_names.map((col, idx) => {
+                      // Add a small badge for detected type
+                      const isNumeric = result.summary.numeric_columns.includes(col);
+                      const isDate = result.summary.date_columns.includes(col);
+                      const typeLabel = isDate ? 'Date' : isNumeric ? '# Num' : 'Abc';
+                      
+                      return (
+                        <th key={idx} className="px-6 py-4 font-medium tracking-wider whitespace-nowrap">
+                          <div className="flex flex-col space-y-1">
+                            <span>{col}</span>
+                            <span className="text-[10px] text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border w-fit">
+                              {typeLabel}
+                            </span>
+                          </div>
+                        </th>
+                      )
+                    })}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
