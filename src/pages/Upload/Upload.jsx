@@ -8,26 +8,26 @@ export default function Upload() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  
+
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
   };
-  
+
   const handleDragLeave = () => {
     setIsDragging(false);
   };
-  
+
   const processFile = async (selectedFile) => {
     if (!selectedFile) return;
-    
+
     // Reset states
     setError(null);
     setResult(null);
     setFile(selectedFile);
-    
+
     // Basic validation
     if (!selectedFile.name.endsWith('.csv')) {
       setError("Invalid file format. Please upload a CSV file.");
@@ -35,7 +35,7 @@ export default function Upload() {
     }
 
     setLoading(true);
-    
+
     try {
       const data = await uploadService.uploadCSV(selectedFile);
       setResult(data);
@@ -76,7 +76,7 @@ export default function Upload() {
           <p className="text-muted-foreground">Upload your CSV business data to generate instant AI insights.</p>
         </div>
         {result && (
-          <button 
+          <button
             onClick={resetUpload}
             className="bg-card border border-border text-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
           >
@@ -88,25 +88,24 @@ export default function Upload() {
       {!result && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="md:col-span-2 space-y-6">
-            <div 
-              className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 cursor-pointer ${
-                isDragging 
-                  ? "border-primary bg-primary/5 shadow-md scale-[1.02]" 
+            <div
+              className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 cursor-pointer ${isDragging
+                  ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
                   : "border-border bg-card hover:bg-muted/30"
-              } ${loading ? "opacity-50 pointer-events-none" : ""}`}
+                } ${loading ? "opacity-50 pointer-events-none" : ""}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => !loading && fileInputRef.current?.click()}
             >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileChange} 
-                accept=".csv" 
-                className="hidden" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".csv"
+                className="hidden"
               />
-              
+
               {loading ? (
                 <div className="flex flex-col items-center">
                   <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
@@ -183,7 +182,7 @@ export default function Upload() {
                 <h3 className="text-2xl font-bold">{result.rows.toLocaleString()}</h3>
               </div>
             </div>
-            
+
             <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4">
               <div className="p-3 bg-primary/10 text-primary rounded-lg">
                 <Columns className="h-6 w-6" />
@@ -193,7 +192,7 @@ export default function Upload() {
                 <h3 className="text-2xl font-bold">{result.columns.toLocaleString()}</h3>
               </div>
             </div>
-            
+
             <div className="bg-card border border-border p-6 rounded-xl shadow-sm flex items-center space-x-4">
               <div className="p-3 bg-primary/10 text-primary rounded-lg">
                 <Table2 className="h-6 w-6" />
