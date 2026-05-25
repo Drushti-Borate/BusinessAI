@@ -17,7 +17,7 @@ export default function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-border">
         <span className="font-bold text-xl tracking-tight text-primary">DataMind AI</span>
       </div>
-      
+
       <div className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -27,8 +27,8 @@ export default function Sidebar() {
               to={item.path}
               className={cn(
                 "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors text-sm font-medium",
-                isActive 
-                  ? "bg-primary/10 text-primary" 
+                isActive
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
