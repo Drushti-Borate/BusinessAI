@@ -106,23 +106,12 @@ def generate_analytics(df: pd.DataFrame):
             "data": chart_data
         })
         
-    # Add statistics to summary for AI processing
-    stats = {}
-    if numeric_cols:
-        desc = df[numeric_cols].describe().replace([np.inf, -np.inf, np.nan], None).to_dict()
-        stats['numeric_summary'] = desc
-        
-    if categorical_cols:
-        cat_desc = df[categorical_cols].describe().replace([np.inf, -np.inf, np.nan], None).to_dict()
-        stats['categorical_summary'] = cat_desc
-
     summary = {
         "rows": len(df),
         "columns": len(df.columns),
         "numeric_columns": numeric_cols,
         "categorical_columns": categorical_cols,
-        "date_columns": date_cols,
-        "statistics": stats
+        "date_columns": date_cols
     }
     
     return summary, charts
