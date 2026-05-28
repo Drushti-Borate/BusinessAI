@@ -111,7 +111,9 @@ def generate_analytics(df: pd.DataFrame):
         "columns": len(df.columns),
         "numeric_columns": numeric_cols,
         "categorical_columns": categorical_cols,
-        "date_columns": date_cols
+        "date_columns": date_cols,
+        "missing_values": df.isnull().sum().to_dict(),
+        "numeric_stats": df.describe().to_dict() if not df.empty and numeric_cols else {}
     }
     
     return summary, charts
